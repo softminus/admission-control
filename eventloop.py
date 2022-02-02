@@ -18,7 +18,7 @@ class CoreCounter:
 
             if(message == ''):
                 self.current_cores = self.current_cores - total_requested_by_this_endpoint
-                print (addr, ": connection lost to; relinquishing", total_requested_by_this_endpoint, "cores back to the scheduler")
+                print (addr, ": connection lost; relinquishing", total_requested_by_this_endpoint, "cores back to the scheduler")
                 return
 
 
@@ -53,10 +53,10 @@ class CoreCounter:
 
                         if(message == ''):
                             self.current_cores = self.current_cores - total_requested_by_this_endpoint
-                            print (addr, ": connection lost to; relinquishing", total_requested_by_this_endpoint, "cores back to the scheduler")
+                            print (addr, ": connection lost; relinquishing", total_requested_by_this_endpoint, "cores back to the scheduler")
                             return
                     except (asyncio.exceptions.CancelledError, asyncio.exceptions.TimeoutError):
-                        print (addr, "timed out normally, still holding")
+                        print (addr, "connection active, still holding")
                         pass
 
                 self.current_cores = self.current_cores + numcores

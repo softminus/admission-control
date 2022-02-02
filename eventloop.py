@@ -2,6 +2,11 @@
 
 import asyncio
 
+# Known defect: if a client is in the "waiting for cores to be released" loop
+# it cannot relinquish any cores it has requested. this is OK because our current
+# test suite runs the commands in sequential order and so there's nothing to be
+# gained from allowing command parsing to happen when we're in the loop.
+
 class CoreCounter:
     def __init__(self, total_cores):
         self.total_cores = total_cores

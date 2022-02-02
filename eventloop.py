@@ -24,7 +24,8 @@ class CoreCounter:
 
             addr = writer.get_extra_info('peername')[1]
             #print(f"Received {message!r} from {addr!r}")
-            message=message[:-1]
+            if (message[-1] == '\n'):
+                message=message[:-1]
 
             parsed = message.split(",")
             #print(parsed)

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import asyncio
+import time
+
 
 # Known defect: if a client is in the "waiting for cores to be released" loop
 # it cannot relinquish any cores it has requested. this is OK because our current
@@ -15,11 +17,12 @@ class CoreCounter:
 
     async def handle_echo(self, reader, writer):
         total_requested_by_this_endpoint = 0
-
+        rpc_type = ""
+        start_time = 0
         while True:
-
             data = await reader.read(128)
             message = data.decode()
+            addr = writer.get_extra_info('peername')[1]
 
             if(message == ''):
                 self.current_cores = self.current_cores - total_requested_by_this_endpoint
@@ -27,7 +30,6 @@ class CoreCounter:
                 return
 
 
-            addr = writer.get_extra_info('peername')[1]
             #print(f"Received {message!r} from {addr!r}")
             if (message[-1] == '\n'):
                 message=message[:-1]
@@ -47,10 +49,15 @@ class CoreCounter:
                     numcores = total_requested_by_this_endpoint
                 self.current_cores = self.current_cores - numcores
                 total_requested_by_this_endpoint -= numcores
-                print(addr, "releases", numcores, "cores; now", self.current_cores, "are in use")
+                writer.write(str(str(numcores) + ",R\n").encode())
+                end_time = time.time()
+                print(addr, "releases", numcores, "cores for", rpc_type, self.current_cores, "are in use")
+                print(rpc_type, "took", end_time - start_time)
 
 
             if (message_type == "A"): # acquire some cores
+                rpc_type = parsed[2]
+
                 while (numcores + self.current_cores > self.total_cores):
                     print(addr, "requests", numcores, "but only", self.total_cores - self.current_cores, "are available")
                     try:
@@ -67,8 +74,9 @@ class CoreCounter:
 
                 self.current_cores = self.current_cores + numcores
                 total_requested_by_this_endpoint += numcores
-                print(addr, "granted", numcores, "core[s]; now", self.current_cores, "cores are in use")
+                print(addr, "granted", numcores, "core[s]; now for", rpc_type, self.current_cores, "cores are in use")
                 writer.write(str(str(numcores) + ",G\n").encode())
+                start_time = time.time()
 
             await writer.drain()
 

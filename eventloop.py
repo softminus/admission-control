@@ -25,7 +25,7 @@ class CoreCounter:
             addr = writer.get_extra_info('peername')[1]
 
             if(message == ''):
-                self.current_cores = self.current_cores - total_requested_by_this_endpoint
+                #self.current_cores = self.current_cores - total_requested_by_this_endpoint
                 print (addr, ": connection lost; relinquishing", total_requested_by_this_endpoint, "cores back to the scheduler")
                 return
 
@@ -65,7 +65,7 @@ class CoreCounter:
                         message = data.decode()
 
                         if(message == ''):
-                            self.current_cores = self.current_cores - total_requested_by_this_endpoint
+                            #self.current_cores = self.current_cores - total_requested_by_this_endpoint
                             print (addr, ": connection lost; relinquishing", total_requested_by_this_endpoint, "cores back to the scheduler")
                             return
                     except (asyncio.exceptions.CancelledError, asyncio.exceptions.TimeoutError):

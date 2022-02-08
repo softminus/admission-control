@@ -86,7 +86,7 @@ class CoreCounter:
 
 
 async def main():
-    ctx = CoreCounter(total_cores=16)
+    ctx = CoreCounter(total_cores=1024)
     server = await asyncio.start_server(ctx.handle_echo, '127.0.0.1', 8888)
 
     addrs = ', '.join(str(sock.getsockname()) for sock in server.sockets)

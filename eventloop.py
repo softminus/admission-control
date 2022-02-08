@@ -45,8 +45,8 @@ class CoreCounter:
             message_type = parsed[1]
 
             if (message_type == "R"): # relinquish some cores
-                if (numcores > total_requested_by_this_endpoint):
-                    numcores = total_requested_by_this_endpoint
+                #if (numcores > total_requested_by_this_endpoint):
+                #    numcores = total_requested_by_this_endpoint
                 self.current_cores = self.current_cores - numcores
                 total_requested_by_this_endpoint -= numcores
                 writer.write(str(str(numcores) + ",R\n").encode())

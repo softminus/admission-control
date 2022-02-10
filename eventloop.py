@@ -49,7 +49,12 @@ class CoreCounter:
                 #    numcores = total_requested_by_this_endpoint
                 self.current_cores = self.current_cores - numcores
                 total_requested_by_this_endpoint -= numcores
-                writer.write(str(str(numcores) + ",R\n").encode())
+                if (self.current_cores < 0):
+                    print("cores went below zero, telling client to halt")
+                    quit(1)
+                    writer.write(str(str(numcores) + "K\n").encode())
+                else:
+                    writer.write(str(str(numcores) + "R\n").encode())
                 end_time = time.time()
                 print(addr, "releases", numcores, "cores for", rpc_type, self.current_cores, "are in use")
                 print(rpc_type, "took", end_time - start_time)
@@ -86,7 +91,7 @@ class CoreCounter:
 
 
 async def main():
-    ctx = CoreCounter(total_cores=1024)
+    ctx = CoreCounter(total_cores=1)
     server = await asyncio.start_server(ctx.handle_echo, '127.0.0.1', 8888)
 
     addrs = ', '.join(str(sock.getsockname()) for sock in server.sockets)

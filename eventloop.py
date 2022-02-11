@@ -12,6 +12,7 @@ import time
 class CoreCounter:
     def __init__(self, total_cores):
         self.total_cores = total_cores
+        self.in_flight_operation_ids = []
         self.current_cores = 0
 
 
@@ -23,6 +24,7 @@ class CoreCounter:
             data = await reader.read(128)
             message = data.decode()
             addr = writer.get_extra_info('peername')[1]
+            print("received message:", message)
 
             if(message == ''):
                 #self.current_cores = self.current_cores - total_requested_by_this_endpoint
@@ -51,8 +53,10 @@ class CoreCounter:
                 total_requested_by_this_endpoint -= numcores
                 if (self.current_cores < 0):
                     print("cores went below zero, telling client to halt")
-                    quit(1)
                     writer.write(str(str(numcores) + "K\n").encode())
+                    await writer.drain()
+                    writer.close()
+                    quit(1)
                 else:
                     writer.write(str(str(numcores) + "R\n").encode())
                 end_time = time.time()
@@ -91,7 +95,7 @@ class CoreCounter:
 
 
 async def main():
-    ctx = CoreCounter(total_cores=1)
+    ctx = CoreCounter(total_cores=10)
     server = await asyncio.start_server(ctx.handle_echo, '127.0.0.1', 8888)
 
     addrs = ', '.join(str(sock.getsockname()) for sock in server.sockets)
